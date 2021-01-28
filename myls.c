@@ -1,31 +1,63 @@
 #include <stdio.h>
+#include <stdlib.h>
 #include <dirent.h>
+#include <errno.h>
 #include <sys/stat.h>
+#include <stdarg.h>
 
 
-void _ls(const char *dir,int op_a,int op_l)
+void myls(const char *dir) //and for multiple directories? dynamic variable arguments?
 {
-    //Function logic here
+   // struct stat mystat; not sure if we need this to show the "flag" ('-h') for hidden files.
+    
+    struct dirent *myfile;
+    DIR *mydir = opendir(dir);
+    
+    if (!mydir)
+	{
+		if (errno = ENOENT)
+		{
+			//If the directory is not found
+			perror("Directory doesn't exist");
+		}
+		else
+		{
+			//If the directory is not readable then throw error and exit
+			perror("Unable to read directory");
+		}
+		exit(EXIT_FAILURE);
+	}
+    while ((myfile = readdir(mydir)) != NULL)
+	{
+		//If hidden files are found we continue
+		if ( myfile->d_name[0] == '.')  //we need to modify this so it shows a "-h" flag next when hidden files are hidden (starting with a '.')
+        {
+            continue;
+        }
+        else{
+            //we need to modify this so it shows a "-h" flag next when hidden files are hidden (starting with a '.')
+        }
+			
+		printf("%s  ", myfile->d_name);
+		
+	}
+	
 }
+
+
+
 
 
 int main(int argc, char* argv[]) {
 
-    struct dirent *myfile;
-    struct stat mystat;
-    DIR *mydir = opendir(argv[1]);
-    char buf[512];
+if (argc == 1)
+	{
+		myls(".");
+	}
 
-    if(mydir == NULL) {
-        sprintf("Could not access ", argv[1]);
-        return 0;
-    }
+else if (argc == 2)
+    {
 
-    while((myfile = readdir(mydir)) != NULL) {
-        sprintf(buf,"%s/%s", argv[1], myfile->d_name);
-        stat(buf, &mystat);
-        printf("%s\n", myfile->d_name);
     }
-    closedir(mydir);
     return 0;
 }
